@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Dashboard\ParametrosController;
 use App\Http\Controllers\Dashboard\UsuariosController;
 use App\Http\Controllers\Chat\ChatController;
+use App\Http\Controllers\FCM\FcmController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,18 +26,14 @@ Route::middleware([
     'user.permisos'
 ])->prefix('/dashboard')->group(function (){
 
+    Route::get('fcm', [FcmController::class, 'index'])->name('fcm.index');
+
     Route::get('parametros', [ParametrosController::class, 'index'])->name('parametros.index');
     Route::get('usuarios', [UsuariosController::class, 'index'])->name('usuarios.index');
     Route::get('export/usuarios/{buscar?}', [UsuariosController::class, 'export'])->name('usuarios.excel');
+
 });
 
 Route::get('dashboard/perfil', [UsuariosController::class, 'perfil'])->middleware('auth')->name('usuarios.perfil');
-
-Route::get('/prueba', function () {
-    //Alert::alert('Title', 'Message', 'Type');
-    return view('dashboard.z_componentes.android');
-
-})->middleware(['user.permisos'])->name("prueba");
-
 Route::get('chat-directo', [ChatController::class, 'index'])->middleware('auth')->name('chat.directo');
 

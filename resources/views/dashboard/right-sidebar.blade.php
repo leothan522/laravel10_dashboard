@@ -15,8 +15,8 @@
         </li>
         @if(auth()->user()->role == 100)
             <li class="nav-item">
-                <a href="{{ route('prueba') }}" class="nav-link" target="_blank">
-                    <i class="fas fa-store-alt"></i> Pagina de Prueba
+                <a href="{{ route('fcm.index') }}" class="nav-link">
+                    <i class="fas fa-bell"></i> Cloud Messaging (FCM)
                 </a>
             </li>
         @endif
