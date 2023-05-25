@@ -6,10 +6,10 @@
 
         <x-validation-errors class="mb-4" />
 
-        <form method="POST" action="{{ route('register') }}" id="registerForm">
+        <form method="POST" action="{{ route('register') }}" {{--id="registerForm"--}}>
             @csrf
 
-            <input type="hidden" class="g-recaptcha" name="recaptcha_token" id="recaptcha_token">
+            {{--<input type="hidden" class="g-recaptcha" name="recaptcha_token" id="recaptcha_token">--}}
 
             <div>
                 <x-label for="name" value="{{ __('Name') }}" />
@@ -61,7 +61,7 @@
     </x-authentication-card>
 
 
-    @push('scripts')
+    {{--@push('scripts')
         <script>
             grecaptcha.ready(function () {
                 document.getElementById('registerForm').addEventListener("submit", function (event) {
@@ -74,6 +74,6 @@
                 });
             });
         </script>
-    @endpush
+    @endpush--}}
 
 </x-guest-layout>
