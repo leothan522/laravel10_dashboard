@@ -5,8 +5,12 @@ namespace App\Http\Livewire\Chat;
 use App\Models\Chat;
 use App\Models\ChatMessage;
 use App\Models\ChatUser;
+use App\Models\User;
+use App\Services\FirebaseCloudMessagingService;
 use Illuminate\Support\Facades\Auth;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\Notification;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -14,22 +18,24 @@ class ChatComponent extends Component
 {
     use LivewireAlert;
     use WithPagination;
+
     protected $paginationTheme = 'bootstrap';
     protected $listeners = ['bajarScroll', 'refresh', 'verMessage'];
 
     public $chat_id, $chat_tipo, $chat_count, $count_new;
     public $new_message;
+    protected $messaging;
 
     public function mount()
     {
         $chatuser = ChatUser::where('users_id', Auth::id())->where('default', 1)->first();
-        if ($chatuser){
+        if ($chatuser) {
             $this->chat_id = $chatuser['chats_id'];
             $this->chat_tipo = $chatuser->chat->tipo;
             $this->chat_count = ChatMessage::where('chats_id', $this->chat_id)->count();
-        }else{
+        } else {
             $chat = Chat::where('id', 1)->first();
-            if (!$chat){
+            if (!$chat) {
                 $chat = new Chat();
                 $chat->id = 1;
                 $chat->save();
@@ -81,16 +87,13 @@ class ChatComponent extends Component
         $this->count_new = 0;
         $this->emit('bajarScroll', $chatmessage->id);
         $this->limpiar();
-        /*$this->alert(
-            'success',
-            'Mensaje enviado.'
-        );*/
+        $this->sendMessage(ucwords($chatmessage->user->name), $chatmessage->message);
     }
 
     public function refresh()
     {
         $count = ChatMessage::where('chats_id', $this->chat_id)->count();
-        if ($count > $this->chat_count){
+        if ($count > $this->chat_count) {
             $this->count_new = $count - $this->chat_count;
         }
     }
@@ -106,6 +109,21 @@ class ChatComponent extends Component
     public function bajarScroll()
     {
         //desplazamiento hasta el final del scroll
+    }
+
+    public function sendMessage($title, $body)
+    {
+        $this->messaging = FirebaseCloudMessagingService::connect();
+        $notificacion = Notification::fromArray([
+            'title' => $title,
+            'body' => $body
+        ]);
+        $users = User::where('fcm_token', '!=', null)->get();
+        foreach ($users as $user) {
+            $message = CloudMessage::withTarget('token', $user['fcm_token'])
+                ->withNotification($notificacion);
+            $this->messaging->send($message);
+        }
     }
 
 }
