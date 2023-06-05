@@ -35,5 +35,5 @@ Route::middleware([
 });
 
 Route::get('dashboard/perfil', [UsuariosController::class, 'perfil'])->middleware('auth')->name('usuarios.perfil');
-Route::get('chat-directo', [ChatController::class, 'index'])->middleware('auth')->name('chat.directo');
+Route::get('chat-directo/{id?}', [ChatController::class, 'index'])->middleware(['user.android'])->name('chat.directo');
 

@@ -18,6 +18,26 @@
                 <form wire:submit.prevent="sendMessage">
 
                     <div class="form-group">
+                        <label for="name">Tipo FCM</label>
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-paper-plane"></i></span>
+                            </div>
+                            <select class="custom-select" wire:model.defer="fcm_tipo">
+                                <option value="">Seleccione...</option>
+                                <option value="notification">With Notification</option>
+                                <option value="data">With Data</option>
+                            </select>
+                            @error('fcm_tipo')
+                            <span class="col-sm-12 text-sm text-bold text-danger">
+                                <i class="icon fas fa-exclamation-triangle"></i>
+                                {{ $message }}
+                            </span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <label for="name">Titulo</label>
                         <div class="input-group mb-3">
                             <div class="input-group-prepend">
@@ -51,25 +71,25 @@
 
                     <div class="form-group">
                         <label for="name">FCM TOKEN</label>
-                        <div class="input-group mb-3">
+                        <div class="input-group mb-3" wire:ignore>
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fas fa-mobile-alt"></i></span>
                             </div>
-                            <select class="custom-select" wire:model.defer="fcm_token">
-                                <option value="">Seleccione Usuario</option>
+                            <select id="fcm_token_users">
+                                <option value="todos">Enviar a Todos</option>
                                 @if(!$listarUsers->isEmpty())
                                     @foreach($listarUsers as $user)
                                         <option value="{{ $user->fcm_token }}">{{ ucfirst($user->name) }}</option>
                                     @endforeach
                                 @endif
                             </select>
-                            @error('fcm_token')
-                            <span class="col-sm-12 text-sm text-bold text-danger">
+                        </div>
+                        @error('fcm_token')
+                        <span class="col-sm-12 text-sm text-bold text-danger">
                             <i class="icon fas fa-exclamation-triangle"></i>
                             {{ $message }}
                         </span>
-                            @enderror
-                        </div>
+                        @enderror
                     </div>
 
                     <div class="form-group">

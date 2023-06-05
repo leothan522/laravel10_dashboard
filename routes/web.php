@@ -16,7 +16,11 @@ use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
     return view('welcome');
-})->name('welcome');
+})->name('web.index');
+
+Route::get('/perfil', function (){
+    return view('profile.show_default');
+})->name('web.perfil')->middleware('auth');
 
 Route::middleware([
     'auth:sanctum',
@@ -32,7 +36,7 @@ Route::middleware([
 
 Route::get('/cerrar', function () {
     Auth::logout();
-    return view('welcome');
+    return redirect()->route('web.index');
 })->name('cerrar');
 
 

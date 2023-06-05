@@ -66,5 +66,6 @@ class Kernel extends HttpKernel
         'user.admin' => \App\Http\Middleware\UserAdmin::class,
         'user.estatus' => \App\Http\Middleware\UserEstatus::class,
         'user.permisos' => \App\Http\Middleware\UserPermisos::class,
+        'user.android' => \App\Http\Middleware\UserAndroid::class,
     ];
 }

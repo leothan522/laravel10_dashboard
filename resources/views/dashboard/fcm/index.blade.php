@@ -1,6 +1,8 @@
 @extends('adminlte::page')
 
-@section('title', 'Dashboard')
+@section('plugins.Select2', true)
+
+@section('title', 'Cloud Messaging (FCM)')
 
 @section('content_header')
     <h1><i class="fas fa-bell"></i> Firebase Cloud Messaging</h1>
@@ -36,6 +38,16 @@
             }
             return false;
         }
+
+        $('#fcm_token_users').select2({
+            theme: 'bootstrap4',
+            language: "es"
+        })
+
+        $('#fcm_token_users').on('change', function () {
+            let token = $(this).val();
+            Livewire.emit('tokenSeleccionado', token);
+        });
 
         console.log('Hi!');
     </script>

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->bigInteger('users_id')->unsigned();
             $table->bigInteger('chats_id')->unsigned();
             $table->integer('default')->default(1);
+            $table->integer('mensajes_vistos')->default(0);
             $table->foreign('users_id')->references('id')->on('users')->cascadeOnDelete();
             $table->foreign('chats_id')->references('id')->on('chats')->cascadeOnDelete();
             $table->timestamps();
