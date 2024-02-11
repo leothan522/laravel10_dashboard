@@ -12,7 +12,7 @@
 
     <br>
     <hr>
-    @include('dashboard.z_componentes.vista_desde_array')
+    @include('dashboard._componentes.vista_desde_array')
 
 @stop
 
