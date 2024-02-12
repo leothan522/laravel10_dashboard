@@ -2,10 +2,9 @@
 //Funciones Personalizadas para el Proyecto
 
 use App\Models\Parametro;
-//use App\Models\Producto;
-//use App\Models\Stock;
 use Carbon\Carbon;
-//use Intervention\Image\Facades\Image;
+use Intervention\Image\ImageManager;
+use Illuminate\Support\Facades\Storage;
 
 function hola(){
     return "Funciones Personalidas bien creada";
@@ -118,19 +117,24 @@ function verSpinner()
 function verImagen($path, $user = false)
 {
     if (!is_null($path)){
-        if (file_exists(public_path('storage/'.$path))){
-            return asset('storage/'.$path);
-        }else{
-            if ($user){
+        if ($user){
+            if (file_exists(public_path('storage/'.$path))){
+                return asset('storage/'.$path);
+            }else{
                 return asset('img/user.png');
             }
-            return asset('img/image.png');
+        }else{
+            if (file_exists(public_path($path))){
+                return asset($path);
+            }else{
+                return asset('img/img_placeholder.png');
+            }
         }
     }else{
         if ($user){
             return asset('img/user.png');
         }
-        return asset('img/image.png');
+        return asset('img/img_placeholder.png');
     }
 }
 
@@ -207,37 +211,6 @@ function numRowsPaginate(){
     return $default;
 }
 
-//-------------------------------------------------------------------------------------
-
-
-function cuantosDias($fecha_inicio, $fecha_final){
-
-    if ($fecha_inicio == null){
-        return 0;
-    }
-
-    $carbon = new Carbon();
-    $fechaEmision = $carbon->parse($fecha_inicio);
-    $fechaExpiracion = $carbon->parse($fecha_final);
-    $diasDiferencia = $fechaExpiracion->diffInDays($fechaEmision);
-    return $diasDiferencia;
-}
-
-function diaEspanol($fecha){
-    $diaSemana = date("w",strtotime($fecha));
-    $diasEspanol = array("Domingo","Lunes","Martes","Miercoles","Jueves","Viernes","Sabado");
-    $dia = $diasEspanol[$diaSemana];
-    return $dia;
-}
-
-function mesEspanol($numMes){
-    $meses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");
-    $mes = $meses[$numMes - 1];
-    return $mes;
-}
-
-
-
 //funcion formato millares
 function formatoMillares($cantidad, $decimal = 2)
 {
@@ -253,6 +226,148 @@ function cerosIzquierda($cantidad, $cantCeros = 2)
     return str_pad($cantidad, $cantCeros, "0", STR_PAD_LEFT);
 }
 
+function numSizeCodigo(){
+    $default = 6;
+    $parametro = Parametro::where("nombre", "size_codigo")->first();
+    if ($parametro) {
+        if (is_numeric($parametro->tabla_id)) {
+            return $parametro->tabla_id;
+        }
+    }
+    return $default;
+}
+
+function nextCodigo($next = 1, $parametros_nombre = null, $parametros_tabla_id = null){
+    $codigo = null;
+
+    //buscamos algun formato para el codigo
+    $parametro = Parametro::where("nombre", $parametros_nombre)->where('tabla_id', $parametros_tabla_id)->first();
+    if ($parametro) {
+        $codigo = $parametro->valor;
+    }else{
+        $codigo = "N".$parametros_tabla_id.'-';
+    }
+
+    if (!is_numeric($next)){ $next = 1; }
+
+    $size = cerosIzquierda($next, numSizeCodigo());
+
+    return $codigo . $size;
+
+}
+
+function crearMiniaturas($imagen_data, $path_data)
+{
+    //ejemplo de path
+    //$miniatura = 'storage/productos/size_'.$nombreImagen;
+
+    //definir tamaños
+    $sizes = [
+        'mini' => [
+            'width' => 320,
+            'height' => 320,
+            'path' => str_replace('size_', 'mini_', $path_data)
+        ],
+        'detail' => [
+            'width' => 540,
+            'height' => 560,
+            'path' => str_replace('size_', 'detail_', $path_data)
+        ],
+        'cart' => [
+            'width' => 101,
+            'height' => 100,
+            'path' => str_replace('size_', 'cart_', $path_data)
+        ],
+        'banner' => [
+            'width' => 570,
+            'height' => 270,
+            'path' => str_replace('size_', 'banner_', $path_data)
+        ]
+    ];
+
+    $respuesta = array();
+
+    $image = ImageManager::gd()->read($imagen_data);
+    foreach ($sizes as $nombre => $items){
+        $width = null;
+        $height = null;
+        $path = null;
+        foreach ($items as $key => $valor){
+            if ($key == 'width') { $width = $valor; }
+            if ($key == 'height') { $height = $valor; }
+            if ($key == 'path') { $path = $valor; }
+        }
+        $respuesta[$nombre] = $path;
+        $image->resize($width, $height);
+        $image->save($path);
+    }
+
+    return $respuesta;
+
+}
+
+//borrar imagenes incluyendo las miniaturas
+function borrarImagenes($imagen, $carpeta)
+{
+    if ($imagen){
+        //reenplazamos storage por public
+        $imagen = str_replace('storage/', 'public/', $imagen);
+        //definir tamaños
+        $sizes = [
+            'mini' => [
+                'path' => str_replace($carpeta.'/', $carpeta.'/mini_', $imagen)
+            ],
+            'detail' => [
+                'path' => str_replace($carpeta.'/', $carpeta.'/detail_', $imagen)
+            ],
+            'cart' => [
+                'path' => str_replace($carpeta.'/', $carpeta.'/cart_', $imagen)
+            ],
+            'banner' => [
+                'path' => str_replace($carpeta.'/', $carpeta.'/banner_', $imagen)
+            ]
+        ];
+
+        $exite = Storage::exists($imagen);
+        if ($exite){
+            Storage::delete($imagen);
+        }
+
+        foreach ($sizes as $items){
+            $exite = Storage::exists($items['path']);
+            if ($exite){
+                Storage::delete($items['path']);
+            }
+        }
+    }
+}
+
+function diaEspanol($fecha){
+    $diaSemana = date("w",strtotime($fecha));
+    $diasEspanol = array("Domingo","Lunes","Martes","Miercoles","Jueves","Viernes","Sabado");
+    $dia = $diasEspanol[$diaSemana];
+    return $dia;
+}
+
+function mesEspanol($numMes){
+    $meses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");
+    $mes = $meses[$numMes - 1];
+    return $mes;
+}
+
+function cuantosDias($fecha_inicio, $fecha_final){
+
+    if ($fecha_inicio == null){
+        return 0;
+    }
+
+    $carbon = new Carbon();
+    $fechaEmision = $carbon->parse($fecha_inicio);
+    $fechaExpiracion = $carbon->parse($fecha_final);
+    $diasDiferencia = $fechaExpiracion->diffInDays($fechaEmision);
+    return $diasDiferencia;
+}
+
 //calculo de porcentaje
 function obtenerPorcentaje($cantidad, $total)
 {
@@ -263,6 +378,8 @@ function obtenerPorcentaje($cantidad, $total)
     }
     return 0;
 }
+
+//-------------------------------------------------------------------------------------
 
 //Estado de Tienda Abierto o Cerrada
 function estatusTienda($id, $boton = false)
@@ -321,39 +438,6 @@ function hourIsBetween($from, $to, $input) {
 Comprobaremos si la segunda hora que le pasamos es inferior a la primera, con lo cual entenderemos que es para el día siguiente.
 Y al final devolveremos true o false dependiendo si el valor introducido se encuentra entre lo que le hemos pasado.*/
 }
-
-function empresaDefault($default)
-{
-    if ($default){
-        return '<i class="fas fa-certificate text-muted text-xs"></i>';
-    }else{
-        return false;
-    }
-}
-
-function verImg($path, $banner = false)
-{
-    if ($banner){
-        $img = 'img/b_img_placeholder.png';
-    }else{
-        $img = 'img/img_placeholder.png';
-    }
-    if (!is_null($path)){
-        if (file_exists(public_path($path))){
-            $img = $path;
-        }
-    }
-    return $img;
-}
-
-/*function crearMiniaturas($data, $path, $width = 320, $height = 320)
-{
-    //$nombre = explode('logo/', $empresa->logo);
-    //$path = 'storage/logo/t_'.$nombre[1]
-    $img = Image::make($data);
-    $img->resize($width, $height);
-    $img->save($path);
-}*/
 
 /*function calcularIVA($id, $pvp, $iva = false, $label = false)
 {
@@ -490,18 +574,5 @@ function telefonoSoporte()
     }
     return $telefono;
 }
-
-function verTipoCategoria($categoria)
-{
-    $categorias = [
-        '0' => 'Productos',
-        '1' => 'Tiendas',
-    ];
-
-    if(array_key_exists($categoria, $categorias)){
-        return $categorias[$categoria];
-    }else{
-        return "NO DEFINIDA";
-    }
 
 }*/
