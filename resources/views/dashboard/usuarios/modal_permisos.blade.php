@@ -3,13 +3,7 @@
         <div class="modal-content fondo">
             <div class="modal-header">
                 <h4 class="modal-title">
-                    @if($tabla == "parametros")
-                        Rol de usuario [ <span class="text-bold">{{ ucwords($tabla_nombre )}}</span> ]
-                    @else
-                        Permisos de Usuario
-                        [ <span class="text-bold">{{ ucwords($tabla_nombre )}}</span> ]
-                        [ <span class="text-bold">{{ ucwords($tabla_email )}}</span> ]
-                    @endif
+                    Permisos de Usuario
                 </h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -17,27 +11,30 @@
             </div>
             <div class="modal-body">
 
-                @include('dashboard.usuarios.verPermisos')
+                <div class="row">
+                    <div class="col-12">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item active" >{{ $edit_name }}</li>
+                            <li class="breadcrumb-item active" >{{ $edit_email }}</li>
+                            <li class="breadcrumb-item active" >{{ $rol_nombre }}</li>
+                            <li class="breadcrumb-item active" >{!! verEstatusUsuario($estatus, true) !!}</li>
+                        </ol>
+                    </div>
+                </div>
+
+                @include('dashboard.usuarios.show_permisos')
 
             </div>
-            <div class="modal-footer justify-content-end">
-                @if($tabla == "parametros")
-                    <button type="button" class="btn btn-danger btn-sm" wire:click="destroyRol({{ $tabla_id }})"><i class="fas fa-trash-alt"></i></button>
-                    <form wire:submit.prevent="updateRol()">
-                        <div class="input-group input-group-sm">
-                            <input type="text" class="form-control" placeholder="nombre" wire:model.defer="tabla_nombre">
-                            <span class="input-group-append">
-                                <button type="submit" class="btn btn-success btn-flat">
-                                    <i class="fas fa-save"></i>
-                                </button>
-                              </span>
-                        </div>
-                    </form>
-                    <button type="button" class="btn btn-primary btn-sm" wire:click="updateRolUsuarios">
-                        Actualizar Usuarios
-                    </button>
-                @endif
-                <button type="button" class="btn btn-default btn-sm" data-dismiss="modal" wire:click="limpiar" id="boton_rol_modal_cerrar">{{ __('Close') }}</button>
+            <div class="modal-footer row col-12 justify-content-between">
+                <button type="button" class="btn btn-danger btn-sm" {{--wire:click="destroy({{ $roles_id }})"--}}>
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+                <button type="button" class="btn btn-primary btn-sm" {{--wire:click="updateRolUsuarios"--}}>
+                    Actualizar Permisos
+                </button>
+                <button type="button" class="btn btn-default btn-sm" data-dismiss="modal" wire:click="limpiar" id="button_permisos_modal_cerrar">
+                    {{ __('Close') }}
+                </button>
             </div>
 
             {!! verSpinner() !!}
