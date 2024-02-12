@@ -42,7 +42,6 @@
         $("#from_role_usuario").submit(function(e) {
             e.preventDefault();
             let nombre = $('#input_role_nombre').val();
-            //alert('Rol: ' + nombre.val())
             Livewire.emit('save', nombre);
         });
 
@@ -61,6 +60,7 @@
         });
 
         function showRol(id){
+            $('#div_ver_spinner_roles').removeClass('d-none');
             Livewire.emit('edit', id);
         }
 
@@ -69,12 +69,21 @@
         });
 
         Livewire.on('removeRolList', id =>{
+            Livewire.emit('limpiar');
             $('#button_role_id_' + id).addClass('d-none');
             $('#button_rol_modal_cerrar').click();
         });
 
         Livewire.on('cerrarModal', () => {
             $('#button_edit_modal_cerrar').click();
+        });
+
+        $('#button_rol_modal_cerrar').click(function (e) {
+            $('#div_ver_spinner_roles').removeClass('d-none');
+        });
+
+        $('#button_permisos_modal_cerrar').click(function (e) {
+            $('#div_ver_spinner_usuarios').removeClass('d-none');
         });
 
         console.log('Hi!');

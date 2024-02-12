@@ -10,8 +10,8 @@
                         @foreach($items as $key => $value)
                             @if($key == "route")
                                 <div class="custom-control custom-switch custom-switch-on-success float-left">
-                                    <input type="checkbox" {{--wire:click="updatePermisos({{ $tabla_id }}, '{{ $value }}')"--}}
-                                           @if(/*leerJson($tabla_permisos, $value)*/false) checked @endif
+                                    <input type="checkbox" wire:click="setPermisos('{{ $value }}')"
+                                           @if(leerJson($getPermisos, $value)) checked @endif
                                            class="custom-control-input" id="customSwitch_title_{{ $tabla }}_{{ $i }}">
                                     <label class="custom-control-label" for="customSwitch_title_{{ $tabla }}_{{ $i }}"></label>
                                 </div>
@@ -32,8 +32,8 @@
                                 <li class="list-group-item">
                                     {{ $key }}
                                     <div class="custom-control custom-switch custom-switch-on-success float-right">
-                                        <input type="checkbox" {{--wire:click="updatePermisos({{ $tabla_id }}, '{{ $value }}')"--}}
-                                               @if(/*leerJson($tabla_permisos, $value)*/false) checked @endif
+                                        <input type="checkbox" wire:click="setPermisos('{{ $value }}')"
+                                               @if(leerJson($getPermisos, $value)) checked @endif
                                                class="custom-control-input" id="customSwitch_{{ $tabla }}_{{ $x }}_{{ $i }}">
                                         <label class="custom-control-label" for="customSwitch_{{ $tabla }}_{{ $x }}_{{ $i }}"></label>
                                     </div>

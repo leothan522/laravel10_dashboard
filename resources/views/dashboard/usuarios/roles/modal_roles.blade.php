@@ -47,15 +47,32 @@
                 <button type="button" class="btn btn-danger btn-sm" wire:click="destroy({{ $roles_id }})">
                     <i class="fas fa-trash-alt"></i>
                 </button>
-                <button type="button" class="btn btn-primary btn-sm" {{--wire:click="updateRolUsuarios"--}}>
-                    Actualizar Permisos
+                <button type="button" class="btn btn-default btn-sm" wire:click="deletePermisos">
+                    <i class="fas fa-trash-alt"></i> Quitar Todos
+                </button>
+                <button type="button" class="btn btn-primary btn-sm" wire:click="savePermisos" @if(!$cambios) disabled @endif>
+                    <i class="fa fa-save"></i> Actualizar Permisos
                 </button>
                 <button type="button" class="btn btn-default btn-sm" data-dismiss="modal" wire:click="limpiarRoles" id="button_rol_modal_cerrar">
                     {{ __('Close') }}
                 </button>
             </div>
 
-            {!! verSpinner() !!}
+            <div class="overlay-wrapper" wire:loading wire:target="save, destroy, savePermisos">
+                <div class="overlay">
+                    <div class="spinner-border text-navy" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="overlay-wrapper d-none" id="div_ver_spinner_roles">
+                <div class="overlay">
+                    <div class="spinner-border text-navy" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+            </div>
 
         </div>
     </div>

@@ -30,7 +30,7 @@
                 <th>Email</th>
                 <th class="text-center">Rol</th>
                 <th class="text-center">Estatus</th>
-                <th class="text-right">Update_at</th>
+                <th class="text-right">Creado</th>
                 <th style="width: 5%;">&nbsp;</th>
             </tr>
             </thead>
@@ -47,7 +47,7 @@
                             {!! verEstatusUsuario($user->estatus, true) !!}
                             {{--<span class="text-sm"> ID: {{ $user->id }}</span>--}}
                         </td>
-                        <td class="text-right">{{ haceCuanto($user->updated_at)  }}</td>
+                        <td class="text-right">{{ haceCuanto($user->created_at)  }}</td>
                         <td class="justify-content-end">
                             <div class="btn-group">
                                 <button wire:click="edit({{ $user->id }})" class="btn btn-primary btn-sm"

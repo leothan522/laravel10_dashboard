@@ -18,13 +18,13 @@ class UsuariosComponent extends Component
 
     protected $paginationTheme = 'bootstrap';
     protected $listeners = [
-        'buscar', 'confirmedUser', 'cerrarModal',
+        'buscar', 'confirmedUser', 'cerrarModal', 'limpiar'
     ];
 
-    public $view = "create", $keyword, $tabla = 'usuarios';
+    public $view = "create", $keyword;
     public $name, $email, $password, $role, $usuarios_id;
     public $edit_name, $edit_email, $edit_password, $edit_role = 0, $edit_roles_id = 0, $created_at, $estatus = 1, $photo, $empresas_id;
-    public $rol_nombre;
+    public $rol_nombre, $tabla = 'usuarios', $getPermisos, $cambios = false;
 
     public function render()
     {
@@ -32,7 +32,7 @@ class UsuariosComponent extends Component
         $users = User::buscar($this->keyword)
             ->orderBy('role', 'DESC')
             ->orderBy('roles_id', 'DESC')
-            ->orderBy('updated_at', 'DESC')
+            ->orderBy('created_at', 'DESC')
             ->paginate(numRowsPaginate());
         $rows = User::count();
         return view('livewire.dashboard.usuarios-component')
@@ -46,7 +46,7 @@ class UsuariosComponent extends Component
         $this->reset([
             'view', 'keyword', 'name', 'email', 'password', 'role', 'usuarios_id',
             'edit_name', 'edit_email', 'edit_password', 'edit_role', 'edit_roles_id', 'created_at', 'estatus',
-            'photo', 'empresas_id', 'rol_nombre'
+            'photo', 'empresas_id', 'rol_nombre', 'getPermisos', 'cambios'
         ]);
     }
 
@@ -145,6 +145,7 @@ class UsuariosComponent extends Component
         $this->photo = $usuario->profile_photo_path;
         /*$this->empresas_id = $usuario->empresas_id;*/
         $this->rol_nombre = verRole($usuario->role, $usuario->roles_id);
+        $this->getPermisos = $usuario->permisos;
     }
 
     public function cambiarEstatus($id)
@@ -235,65 +236,36 @@ class UsuariosComponent extends Component
         //JS
     }
 
-    /*public function verPermisos($tabla, $id)
+    public function setPermisos($permiso)
     {
-        $this->tabla = $tabla;
-        if ($this->tabla == "usuarios") {
-            $usuarios = User::find($id);
-            $this->tabla_id = $usuarios->id;
-            $this->tabla_nombre = $usuarios->name;
-            $this->tabla_email = $usuarios->email;
-            $this->tabla_permisos = $usuarios->permisos;
-        } else {
-            $parametro = Parametro::find($id);
-            $this->tabla_id = $parametro->id;
-            $this->tabla_nombre = $parametro->nombre;
-            $this->tabla_email = null;
-            $this->tabla_permisos = $parametro->valor;
-        }
-
-    }*/
-
-    /*public function updatePermisos($id, $permiso)
-    {
-        $type = "success";
-        $message = "Exito";
         $permisos = [];
-
-        if ($this->tabla == "parametros"){
-            //roles
-            $tabla = Parametro::find($id);
-            $tabla_permisos = $tabla->valor;
-        }else{
-            //usuarios
-            $tabla = User::find($id);
-            $tabla_permisos = $tabla->permisos;
-        }
-
-        if (!leerJson($tabla_permisos, $permiso)){
-            $permisos = json_decode($tabla_permisos, true);
+        if (!leerJson($this->getPermisos, $permiso)){
+            $permisos = json_decode($this->getPermisos, true);
             $permisos[$permiso] = true;
             $permisos = json_encode($permisos);
             $message = "Permiso Agregado.";
         }else{
-            $permisos = json_decode($tabla_permisos, true);
+            $permisos = json_decode($this->getPermisos, true);
             unset($permisos[$permiso]);
             $permisos = json_encode($permisos);
             $message = "Permiso Eliminado.";
         }
+        $this->getPermisos = $permisos;
+        $this->cambios = true;
+    }
 
-        if ($this->tabla == "parametros"){
-            $tabla->valor = $permisos;
-        }else{
-            $tabla->permisos = $permisos;
-        }
+    public function savePermisos(){
+        $usuario = User::find($this->usuarios_id);
+        $usuario->permisos = $this->getPermisos;
+        $usuario->save();
+        $this->reset('cambios');
+        $this->alert('success', 'Permisos Guardados.');
+    }
 
-        $tabla->update();
-        $this->tabla_permisos = $permisos;
-        $this->alert(
-            $type,
-            $message
-        );
-    }*/
+    public function deletePermisos()
+    {
+        $this->reset('getPermisos');
+        $this->cambios = true;
+    }
 
 }
